@@ -85,8 +85,6 @@ class Player(pygame.sprite.Sprite):
         self.rect.bottom = HEIGHT - 25
         self.speedx = 0
         self.shield = 100
-        self.shoot_delay = 250
-        self.last_shot = pygame.time.get_ticks()
         self.lives = 3
         self.hidden = False
         self.hide_timer = pygame.time.get_ticks()
@@ -110,8 +108,6 @@ class Player(pygame.sprite.Sprite):
             self.speedx = -(self.speed)
         if keystate[pygame.K_RIGHT]:
             self.speedx = self.speed
-        # if keystate[pygame.K_SPACE]:
-        #     self.shoot()
         self.rect.x += self.speedx
 
         if self.rect.right > WIDTH:
@@ -144,7 +140,7 @@ class Mob(pygame.sprite.Sprite):
         self.speedy = random.randrange(1, 8)
         self.speedx = random.randrange(-3, 3)
         self.rot = 0
-        self.rot_speed = random.randrange(-8, 8)
+        self.rot_speed = random.randrange(80, 120)
         self.last_update = pygame.time.get_ticks()
 
     def rotate(self):
