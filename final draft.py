@@ -39,11 +39,11 @@ def draw_text(surf, text, size, x, y):
     text_rect.midtop = (x, y)
     surf.blit(text_surface, text_rect)
 
-def new_mob():
+def new_mob(speed: int):
     m = Mob()
     all_sprites.add(m)
     mobs.add(m)
-
+    m.speedy += speed
 
 def new_powerup():
     p = Pow()
@@ -76,9 +76,11 @@ class Player(pygame.sprite.Sprite):
         self.hide_timer = pygame.time.get_ticks()
         self.speed = 5
         self.power_time = pygame.time.get_ticks()
+        self.freeze_time = pygame.time.get_ticks()
+        self.shield = False
 
     def update(self):
-        # timeout for powerups
+        # timeout for speed boost
         if pygame.time.get_ticks() - self.power_time > POWERUP_TIME:
             if self.speed > 5:
                 self.speed -= 3
@@ -100,6 +102,14 @@ class Player(pygame.sprite.Sprite):
             self.rect.right = WIDTH
         if self.rect.left < 0:
             self.rect.left = 0
+
+    def unfreeze(self, mobs, orig_speed):
+        # timeout for freeze
+        if pygame.time.get_ticks() - self.freeze_time > POWERUP_TIME:
+            for mob in mobs:
+                mob.speedy = orig_speed
+                mob.rot_speed = random.randrange(80, 120)
+            self.freeze_time = pygame.time.get_ticks()
 
     def hide(self):
         # hide the player temporarily
@@ -123,7 +133,7 @@ class Mob(pygame.sprite.Sprite):
         # pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
         self.rect.x = random.randrange(0, WIDTH - self.rect.width)
         self.rect.y = random.randrange(-150, -100)
-        self.speedy = random.randrange(1, 8)
+        self.speedy = 3
         self.speedx = random.randrange(-3, 3)
         self.rot = 0
         self.rot_speed = random.randrange(80, 120)
@@ -149,7 +159,7 @@ class Mob(pygame.sprite.Sprite):
                 self.rect.right > WIDTH + 75:
             self.rect.x = random.randrange(0, WIDTH - self.rect.width)
             self.rect.y = random.randrange(-150, -100)
-            self.speedy = random.randrange(1, 8)
+            self.speedy = speed + 3
 
 
 # power ups
@@ -160,7 +170,7 @@ class Mob(pygame.sprite.Sprite):
 class Pow(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.type = random.choice(['extra life', 'speed boost'])
+        self.type = random.choice(['shield', 'extra life', 'speed boost', 'time freeze'])
         self.image = powerup_images[self.type]
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
@@ -184,8 +194,6 @@ class Pow(pygame.sprite.Sprite):
 # poison/bleeding effect
 
 
-
-
 # Load all game graphics
 player_img = pygame.image.load(path.join(game_folder, 'bad-ninja1---drawing.png')).convert()
 lives_img = pygame.image.load(path.join(game_folder, 'heart.jpg')).convert()
@@ -195,24 +203,29 @@ shuriken_img = pygame.image.load(path.join(game_folder, 'ninjastar.jpg')).conver
 background = pygame.image.load(path.join(game_folder, 'background.jpg')).convert()
 background_rect = background.get_rect()
 powerup_images = {}
+powerup_images['shield'] = pygame.image.load(path.join(game_folder, 'shield_gold.png')).convert()
 powerup_images['extra life'] = pygame.image.load(path.join(game_folder, 'pill_red.png')).convert()
 powerup_images['speed boost'] = pygame.image.load(path.join(game_folder, 'bold_silver.png')).convert()
+powerup_images['time freeze'] = pygame.image.load(path.join(game_folder, 'freeze.png')).convert()
 
-
+speed = 3
 all_sprites = pygame.sprite.Group()
 mobs = pygame.sprite.Group()
 powerups = pygame.sprite.Group()
 player = Player()
 all_sprites.add(player)
-for i in range(10):
-    new_mob()
+for i in range(5):
+    new_mob(speed)
 for j in range(3):
     new_powerup()
 
 score = 0
 
+
 # game loop
 running = True
+last_update = 0
+
 while running:
     # keep loop running at the right speed
     clock.tick(FPS)
@@ -223,13 +236,23 @@ while running:
 
     # update
     all_sprites.update()
+    player.unfreeze(mobs, speed + 3)
+
+    # increase the number of shurikens with time
+    now = pygame.time.get_ticks()
+    if now - last_update > 6000:
+        speed += 1
+        new_mob(speed)
+        last_update = now
 
     # check to see if a mob hit the player
     hits = pygame.sprite.spritecollide(player, mobs, True, pygame.sprite.collide_circle)
     for hit in hits:
-        new_mob()
-        player.hide()
-        player.lives -= 1
+        new_mob(speed)
+        if not player.shield:
+            player.hide()
+            player.lives -= 1
+        player.shield = False
 
     # check to see if player hit a powerup
     hits = pygame.sprite.spritecollide(player, powerups, True, pygame.sprite.collide_circle)
@@ -244,7 +267,16 @@ while running:
             if player.speed >= 11:
                 player.speed = 11
             new_powerup()
-    if player.lives == 0: #and not death_explosion.alive():
+        if hit.type == 'shield' and not player.shield:
+            player.shield = True
+            new_powerup()
+        if hit.type == 'time freeze':
+            for mob in mobs:
+                mob.speedy = 1
+                mob.rot_speed = 8
+            new_powerup()
+
+    if player.lives == 0: # and not death_explosion.alive():
         running = False
 
     score += 0.2
