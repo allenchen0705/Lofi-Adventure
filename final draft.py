@@ -188,6 +188,34 @@ class Pow(pygame.sprite.Sprite):
             self.speedy = random.randrange(1, 8)
 
 
+def show_go_screen():
+    play_again_button = pygame.Rect(int(WIDTH/2 - 85), int(2*HEIGHT/5 + 140), 180, 50)
+    exit_button = pygame.Rect(int(WIDTH/2 - 50), int(2*HEIGHT/3 + 70), 100, 50)
+    pygame.draw.rect(screen, GREEN, exit_button)
+    draw_text(screen, 'GAME OVER', 64, int(WIDTH/2), int(2*HEIGHT/5))
+    draw_text(screen, 'PLAY AGAIN', 28, int(WIDTH/2), int(2*HEIGHT/3))
+    draw_text(screen, 'EXIT', 28, int(WIDTH/2), int(2*HEIGHT/3 + 70))
+    waiting = True
+    while waiting:
+        clock.tick(FPS)
+        mouse_pos = pygame.mouse.get_pos()
+        if play_again_button.x <= mouse_pos[0] <= play_again_button.x + play_again_button.width \
+                and play_again_button.y <= mouse_pos[1] <= play_again_button.y + play_again_button.height:
+            pygame.draw.rect(screen, (153, 255, 51), play_again_button)
+            draw_text(screen, 'PLAY AGAIN', 28, int(WIDTH/2), int(2*HEIGHT/3))
+        else:
+            pygame.draw.rect(screen, GREEN, play_again_button)
+            draw_text(screen, 'PLAY AGAIN', 28, int(WIDTH/2), int(2*HEIGHT/3))
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+
+
+
 # debuffs
 # slow speed
 # become fat
@@ -208,25 +236,28 @@ powerup_images['extra life'] = pygame.image.load(path.join(game_folder, 'pill_re
 powerup_images['speed boost'] = pygame.image.load(path.join(game_folder, 'bold_silver.png')).convert()
 powerup_images['time freeze'] = pygame.image.load(path.join(game_folder, 'freeze.png')).convert()
 
-speed = 3
-all_sprites = pygame.sprite.Group()
-mobs = pygame.sprite.Group()
-powerups = pygame.sprite.Group()
-player = Player()
-all_sprites.add(player)
-for i in range(5):
-    new_mob(speed)
-for j in range(3):
-    new_powerup()
-
-score = 0
-
 
 # game loop
 running = True
+game_over = True
 last_update = 0
 
 while running:
+    if game_over:
+        show_go_screen()
+        game_over = False
+        speed = 3
+        all_sprites = pygame.sprite.Group()
+        mobs = pygame.sprite.Group()
+        powerups = pygame.sprite.Group()
+        player = Player()
+        all_sprites.add(player)
+        for i in range(5):
+            new_mob(speed)
+        for j in range(3):
+            new_powerup()
+
+        score = 0
     # keep loop running at the right speed
     clock.tick(FPS)
     # process input(events)
@@ -277,7 +308,7 @@ while running:
             new_powerup()
 
     if player.lives == 0: # and not death_explosion.alive():
-        running = False
+        game_over = True
 
     score += 0.2
 
