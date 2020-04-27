@@ -192,7 +192,7 @@ def button_hovered(rectangle, hov_colour):
     mouse_pos = pygame.mouse.get_pos()
     hovered = False
     if rectangle.x <= mouse_pos[0] <= rectangle.x + rectangle.width \
-        and rectangle.y <= mouse_pos[1] <= rectangle.y + rectangle.height:
+            and rectangle.y <= mouse_pos[1] <= rectangle.y + rectangle.height:
         pygame.draw.rect(screen, hov_colour, rectangle)
         hovered = True
 
@@ -212,6 +212,10 @@ def show_go_screen():
         clock.tick(FPS)
 
         click = pygame.mouse.get_pressed()
+        pygame.draw.rect(screen, GREEN, play_again_button)
+        draw_text(screen, 'PLAY AGAIN', 28, int(WIDTH/2), int(2*HEIGHT/3))
+        pygame.draw.rect(screen, RED, exit_button)
+        draw_text(screen, 'EXIT', 28, int(WIDTH/2), int(2*HEIGHT/3 + 70))
         if button_hovered(play_again_button, (153, 255, 51)):
             draw_text(screen, 'PLAY AGAIN', 28, int(WIDTH/2), int(2*HEIGHT/3))
 
@@ -224,11 +228,7 @@ def show_go_screen():
             if click[0] == 1:
                 pygame.quit()
                 quit()
-        else:
-            pygame.draw.rect(screen, GREEN, play_again_button)
-            draw_text(screen, 'PLAY AGAIN', 28, int(WIDTH/2), int(2*HEIGHT/3))
-            pygame.draw.rect(screen, RED, exit_button)
-            draw_text(screen, 'EXIT', 28, int(WIDTH/2), int(2*HEIGHT/3 + 70))
+
         pygame.display.flip()
 
         for event in pygame.event.get():
@@ -236,6 +236,86 @@ def show_go_screen():
                 pygame.quit()
                 quit()
 
+
+def show_start_screen():
+    screen.fill(BLACK)
+    draw_text(screen, 'WELCOME', 64, int(WIDTH/2), int(2*HEIGHT/5))
+    start_button = pygame.Rect(int(WIDTH/2 - 92), int(2*HEIGHT/5 + 140), 190, 50)
+    draw_text(screen, 'START GAME', 28, int(WIDTH/2), int(2*HEIGHT/3))
+
+    waiting = True
+    while waiting:
+
+        clock.tick(FPS)
+
+        click = pygame.mouse.get_pressed()
+        pygame.draw.rect(screen, GREEN, start_button)
+        draw_text(screen, 'START GAME', 28, int(WIDTH/2), int(2*HEIGHT/3))
+        if button_hovered(start_button, (153, 255, 51)):
+            draw_text(screen, 'START GAME', 28, int(WIDTH/2), int(2*HEIGHT/3))
+
+            if click[0] == 1:
+                waiting = False
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+
+def show_pause_screen():
+    pause = True
+    reset = False
+    play_again_button = pygame.Rect(int(WIDTH/2 - 85), int(2*HEIGHT/5 + 140), 180, 50)
+    exit_button = pygame.Rect(int(WIDTH/2 - 50), int(2*HEIGHT/3 + 50), 100, 50)
+    resume_button = pygame.Rect(int(WIDTH/2 - 65), int(2*HEIGHT/3 + 110), 130, 50)
+    draw_text(screen, 'PAUSE', 64, int(WIDTH/2), int(2*HEIGHT/5))
+    draw_text(screen, 'PLAY AGAIN', 28, int(WIDTH/2), int(2*HEIGHT/3))
+    draw_text(screen, 'EXIT', 28, int(WIDTH/2), int(2*HEIGHT/3 + 50))
+    draw_text(screen, 'RESUME', 28, int(WIDTH/2), int(2*HEIGHT/3 + 120))
+    waiting = True
+    while waiting:
+
+        clock.tick(FPS)
+
+        click = pygame.mouse.get_pressed()
+        pygame.draw.rect(screen, GREEN, play_again_button)
+        draw_text(screen, 'PLAY AGAIN', 28, int(WIDTH/2), int(2*HEIGHT/3))
+        pygame.draw.rect(screen, RED, exit_button)
+        draw_text(screen, 'EXIT', 28, int(WIDTH/2), int(2*HEIGHT/3 + 50))
+        pygame.draw.rect(screen, (255, 220, 0), resume_button)
+        draw_text(screen, 'RESUME', 28, int(WIDTH/2), int(2*HEIGHT/3 + 120))
+        if button_hovered(play_again_button, (153, 255, 51)):
+            draw_text(screen, 'PLAY AGAIN', 28, int(WIDTH/2), int(2*HEIGHT/3))
+
+            if click[0] == 1:
+                waiting = False
+                reset = True
+                pause = False
+
+        elif button_hovered(exit_button, (255, 153, 153)):
+            draw_text(screen, 'EXIT', 28, int(WIDTH/2), int(2*HEIGHT/3 + 50))
+
+            if click[0] == 1:
+                pygame.quit()
+                quit()
+
+        elif button_hovered(resume_button, (255, 243, 0)):
+            draw_text(screen, 'RESUME', 28, int(WIDTH/2), int(2*HEIGHT/3 + 120))
+
+            if click[0] == 1:
+                pause = False
+                waiting = False
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+    return pause, reset
 
 # debuffs
 # slow speed
@@ -263,30 +343,10 @@ start = True
 game_over = False
 last_update = 0
 running = True
-
-# waiting = True
-# while waiting:
-#
-#     clock.tick(FPS)
-#
-#     click = pygame.mouse.get_pressed()
-#     if button_hovered(start_button, (153, 255, 51)):
-#         draw_text(screen, 'START GAME', 28, int(WIDTH/2), int(2*HEIGHT/3))
-#
-#         if click[0] == 1:
-#             waiting = False
+pause = False
 while running:
-    # make into a separate start_screen function like show_go_screen()
     if start:
-        screen.fill(BLACK)
-        draw_text(screen, 'WELCOME', 64, int(WIDTH/2), int(2*HEIGHT/5))
-        start_button = pygame.Rect(int(WIDTH/2 - 85), int(2*HEIGHT/5 + 140), 180, 50)
-        draw_text(screen, 'START GAME', 28, int(WIDTH/2), int(2*HEIGHT/3))
-        pygame.display.flip()
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+        show_start_screen()
         start = False
         speed = 3
         all_sprites = pygame.sprite.Group()
@@ -320,52 +380,6 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # update
-    all_sprites.update()
-    player.unfreeze(mobs, speed + 3)
-
-    # increase the number of shurikens with time
-    now = pygame.time.get_ticks()
-    if now - last_update > 6000:
-        speed += 1
-        new_mob(speed)
-        last_update = now
-
-    # check to see if a mob hit the player
-    hits = pygame.sprite.spritecollide(player, mobs, True, pygame.sprite.collide_circle)
-    for hit in hits:
-        new_mob(speed)
-        if not player.shield:
-            player.hide()
-            player.lives -= 1
-        player.shield = False
-
-    # check to see if player hit a powerup
-    hits = pygame.sprite.spritecollide(player, powerups, True, pygame.sprite.collide_circle)
-    for hit in hits:
-        if hit.type == 'extra life':
-            player.lives += 1
-            if player.lives >= 3:
-                player.lives = 3
-            new_powerup()
-        if hit.type == 'speed boost':
-            player.speed_boost()
-            if player.speed >= 11:
-                player.speed = 11
-            new_powerup()
-        if hit.type == 'shield' and not player.shield:
-            player.shield = True
-            new_powerup()
-        if hit.type == 'time freeze':
-            for mob in mobs:
-                mob.speedy = 1
-                mob.rot_speed = 8
-            new_powerup()
-
-    if player.lives == 0: # and not death_explosion.alive():
-        game_over = True
-
-    score += 0.2
 
     # draw/render
     # screen.fill(BACKGROUND_COLOUR)
@@ -373,6 +387,67 @@ while running:
     all_sprites.draw(screen)
     draw_text(screen, str(int(score)), 18, WIDTH / 2, 10)
     draw_lives(screen, WIDTH - 100, 5, player.lives, lives_mini_img)
+
+    # pause button
+    pause_button = pygame.Rect(5, 5, 50, 50)
+    pygame.draw.rect(screen, RED, pause_button)
+    click = pygame.mouse.get_pressed()
+    if button_hovered(pause_button, (255, 153, 153)):
+        if click[0] == 1:
+            pause = show_pause_screen()[0]
+            start = show_pause_screen()[1]
+
+    # update
+    if not pause:
+        all_sprites.update()
+        player.unfreeze(mobs, speed + 3)
+
+        # increase the number of shurikens with time
+        now = pygame.time.get_ticks()
+        if now - last_update > 6000:
+            speed += 1
+            new_mob(speed)
+            last_update = now
+
+        # check to see if a mob hit the player
+        hits = pygame.sprite.spritecollide(player, mobs, True, pygame.sprite.collide_circle)
+        for hit in hits:
+            new_mob(speed)
+            if not player.shield:
+                player.hide()
+                player.lives -= 1
+            player.shield = False
+
+        # check to see if player hit a powerup
+        hits = pygame.sprite.spritecollide(player, powerups, True, pygame.sprite.collide_circle)
+        for hit in hits:
+            if hit.type == 'extra life':
+                player.lives += 1
+                if player.lives >= 3:
+                    player.lives = 3
+                new_powerup()
+            if hit.type == 'speed boost':
+                player.speed_boost()
+                if player.speed >= 11:
+                    player.speed = 11
+                new_powerup()
+            if hit.type == 'shield' and not player.shield:
+                player.shield = True
+                new_powerup()
+            if hit.type == 'time freeze':
+                for mob in mobs:
+                    mob.speedy = 1
+                    mob.rot_speed = 8
+                new_powerup()
+
+        if player.lives == 0: # and not death_explosion.alive():
+            game_over = True
+
+        score += 0.2
+
+
+
     pygame.display.flip()
+
 
 pygame.quit()
