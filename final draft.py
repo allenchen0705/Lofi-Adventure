@@ -188,32 +188,53 @@ class Pow(pygame.sprite.Sprite):
             self.speedy = random.randrange(1, 8)
 
 
+def button_hovered(rectangle, hov_colour):
+    mouse_pos = pygame.mouse.get_pos()
+    hovered = False
+    if rectangle.x <= mouse_pos[0] <= rectangle.x + rectangle.width \
+        and rectangle.y <= mouse_pos[1] <= rectangle.y + rectangle.height:
+        pygame.draw.rect(screen, hov_colour, rectangle)
+        hovered = True
+
+    return hovered
+
+
 def show_go_screen():
+    screen.fill(BLACK)
     play_again_button = pygame.Rect(int(WIDTH/2 - 85), int(2*HEIGHT/5 + 140), 180, 50)
     exit_button = pygame.Rect(int(WIDTH/2 - 50), int(2*HEIGHT/3 + 70), 100, 50)
-    pygame.draw.rect(screen, GREEN, exit_button)
     draw_text(screen, 'GAME OVER', 64, int(WIDTH/2), int(2*HEIGHT/5))
     draw_text(screen, 'PLAY AGAIN', 28, int(WIDTH/2), int(2*HEIGHT/3))
     draw_text(screen, 'EXIT', 28, int(WIDTH/2), int(2*HEIGHT/3 + 70))
     waiting = True
     while waiting:
+
         clock.tick(FPS)
-        mouse_pos = pygame.mouse.get_pos()
-        if play_again_button.x <= mouse_pos[0] <= play_again_button.x + play_again_button.width \
-                and play_again_button.y <= mouse_pos[1] <= play_again_button.y + play_again_button.height:
-            pygame.draw.rect(screen, (153, 255, 51), play_again_button)
+
+        click = pygame.mouse.get_pressed()
+        if button_hovered(play_again_button, (153, 255, 51)):
             draw_text(screen, 'PLAY AGAIN', 28, int(WIDTH/2), int(2*HEIGHT/3))
+
+            if click[0] == 1:
+                waiting = False
+
+        elif button_hovered(exit_button, (255, 153, 153)):
+            draw_text(screen, 'EXIT', 28, int(WIDTH/2), int(2*HEIGHT/3 + 70))
+
+            if click[0] == 1:
+                pygame.quit()
+                quit()
         else:
             pygame.draw.rect(screen, GREEN, play_again_button)
             draw_text(screen, 'PLAY AGAIN', 28, int(WIDTH/2), int(2*HEIGHT/3))
+            pygame.draw.rect(screen, RED, exit_button)
+            draw_text(screen, 'EXIT', 28, int(WIDTH/2), int(2*HEIGHT/3 + 70))
         pygame.display.flip()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
-
-
 
 
 # debuffs
@@ -238,11 +259,46 @@ powerup_images['time freeze'] = pygame.image.load(path.join(game_folder, 'freeze
 
 
 # game loop
-running = True
-game_over = True
+start = True
+game_over = False
 last_update = 0
+running = True
 
+# waiting = True
+# while waiting:
+#
+#     clock.tick(FPS)
+#
+#     click = pygame.mouse.get_pressed()
+#     if button_hovered(start_button, (153, 255, 51)):
+#         draw_text(screen, 'START GAME', 28, int(WIDTH/2), int(2*HEIGHT/3))
+#
+#         if click[0] == 1:
+#             waiting = False
 while running:
+    # make into a separate start_screen function like show_go_screen()
+    if start:
+        screen.fill(BLACK)
+        draw_text(screen, 'WELCOME', 64, int(WIDTH/2), int(2*HEIGHT/5))
+        start_button = pygame.Rect(int(WIDTH/2 - 85), int(2*HEIGHT/5 + 140), 180, 50)
+        draw_text(screen, 'START GAME', 28, int(WIDTH/2), int(2*HEIGHT/3))
+        pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+        start = False
+        speed = 3
+        all_sprites = pygame.sprite.Group()
+        mobs = pygame.sprite.Group()
+        powerups = pygame.sprite.Group()
+        player = Player()
+        all_sprites.add(player)
+        for i in range(5):
+            new_mob(speed)
+        for j in range(3):
+            new_powerup()
+        score = 0
     if game_over:
         show_go_screen()
         game_over = False
@@ -256,7 +312,6 @@ while running:
             new_mob(speed)
         for j in range(3):
             new_powerup()
-
         score = 0
     # keep loop running at the right speed
     clock.tick(FPS)
