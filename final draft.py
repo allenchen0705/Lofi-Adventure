@@ -77,7 +77,10 @@ class Player(pygame.sprite.Sprite):
         self.speed = 5
         self.power_time = pygame.time.get_ticks()
         self.freeze_time = pygame.time.get_ticks()
+        self.slow_time = pygame.time.get_ticks()
+        self.invincible_time = pygame.time.get_ticks()
         self.shield = False
+        self.invincible = False
 
     def update(self):
         # timeout for speed boost
@@ -85,6 +88,15 @@ class Player(pygame.sprite.Sprite):
             if self.speed > 5:
                 self.speed -= 3
                 self.power_time = pygame.time.get_ticks()
+        # timeout for slow debuff
+        if pygame.time.get_ticks() - self.slow_time > POWERUP_TIME:
+            if self.speed < 5:
+                self.speed += 3
+                self.slow_time = pygame.time.get_ticks()
+        # timeout for invincible buff
+        if pygame.time.get_ticks() - self.invincible_time > POWERUP_TIME:
+            self.invincible = False
+            self.invincible_time = pygame.time.get_ticks()
         # unhide if hidden
         if self.hidden and pygame.time.get_ticks() - self.hide_timer > 1000:
             self.hidden = False
@@ -103,6 +115,15 @@ class Player(pygame.sprite.Sprite):
         if self.rect.left < 0:
             self.rect.left = 0
 
+    def reset(self):
+        self.speedx = 0
+        self.speed = 5
+        self.power_time = pygame.time.get_ticks()
+        self.freeze_time = pygame.time.get_ticks()
+        self.slow_time = pygame.time.get_ticks()
+        self.shield = False
+        self.invincible = False
+
     def unfreeze(self, mobs, orig_speed):
         # timeout for freeze
         if pygame.time.get_ticks() - self.freeze_time > POWERUP_TIME:
@@ -120,6 +141,14 @@ class Player(pygame.sprite.Sprite):
     def speed_boost(self):
         self.speed += 3
         self.power_time = pygame.time.get_ticks()
+
+    def speed_slow_down(self):
+        self.speed -= 3
+        self.slow_time = pygame.time.get_ticks()
+
+    def time_invincible(self):
+        self.invincible = True
+        self.invincible_time = pygame.time.get_ticks()
 
 
 class Mob(pygame.sprite.Sprite):
@@ -170,7 +199,7 @@ class Mob(pygame.sprite.Sprite):
 class Pow(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.type = random.choice(['shield', 'extra life', 'speed boost', 'time freeze'])
+        self.type = random.choice(['shield', 'extra life', 'speed boost', 'time freeze', 'slow', 'invincible'])
         self.image = powerup_images[self.type]
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
@@ -317,7 +346,7 @@ def show_pause_screen():
                 quit()
     return pause, reset
 
-# debuffs
+# debuffs:
 # slow speed
 # become fat
 # poison/bleeding effect
@@ -336,6 +365,8 @@ powerup_images['shield'] = pygame.image.load(path.join(game_folder, 'shield_gold
 powerup_images['extra life'] = pygame.image.load(path.join(game_folder, 'pill_red.png')).convert()
 powerup_images['speed boost'] = pygame.image.load(path.join(game_folder, 'bold_silver.png')).convert()
 powerup_images['time freeze'] = pygame.image.load(path.join(game_folder, 'freeze.png')).convert()
+powerup_images['slow'] = pygame.image.load(path.join(game_folder, 'slow.png')).convert()
+powerup_images['invincible'] = pygame.image.load(path.join(game_folder, 'invincible.png')).convert()
 
 
 # game loop
@@ -413,9 +444,10 @@ while running:
         hits = pygame.sprite.spritecollide(player, mobs, True, pygame.sprite.collide_circle)
         for hit in hits:
             new_mob(speed)
-            if not player.shield:
+            if not player.shield and not player.invincible:
                 player.hide()
                 player.lives -= 1
+                player.reset()
             player.shield = False
 
         # check to see if player hit a powerup
@@ -438,6 +470,14 @@ while running:
                 for mob in mobs:
                     mob.speedy = 1
                     mob.rot_speed = 8
+                new_powerup()
+            if hit.type == 'slow' and not player.invincible:
+                player.speed_slow_down()
+                if player.speed < 2:
+                    player.speed = 2
+                new_powerup()
+            if hit.type == 'invincible':
+                player.time_invincible()
                 new_powerup()
 
         if player.lives == 0: # and not death_explosion.alive():
