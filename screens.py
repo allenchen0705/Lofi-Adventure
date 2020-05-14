@@ -1,12 +1,27 @@
 import pygame
 
+
 WIDTH = 800
 HEIGHT = 585
 FPS = 60
 POWERUP_TIME = 5000
 clock = pygame.time.Clock()
 font_name = pygame.font.match_font("Arial")
+
+
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+
+
+# define color
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+LILAC = (229, 204, 255)
+MINT = (204, 255, 229)
+WHITE = (255, 255, 255)
+ORANGE = (255, 178, 102)
+BACKGROUND_COLOUR = ORANGE
+
 
 def draw_text(surf, text, size, x, y):
     font = pygame.font.Font(font_name, size)
@@ -26,16 +41,8 @@ def button_hovered(rectangle, hov_colour):
 
     return hovered
 
-# define color
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-LILAC = (229, 204, 255)
-MINT = (204, 255, 229)
-WHITE = (255, 255, 255)
-ORANGE = (255, 178, 102)
-BACKGROUND_COLOUR = ORANGE
-def show_go_screen(screen):
+
+def show_go_screen():
     screen.fill(BLACK)
     play_again_button = pygame.Rect(int(WIDTH/2 - 85), int(2*HEIGHT/5 + 140), 180, 50)
     exit_button = pygame.Rect(int(WIDTH/2 - 50), int(2*HEIGHT/3 + 70), 100, 50)
@@ -73,7 +80,7 @@ def show_go_screen(screen):
                 quit()
 
 
-def show_start_screen(screen):
+def show_start_screen():
     screen.fill(BLACK)
     draw_text(screen, 'WELCOME', 64, int(WIDTH/2), int(2*HEIGHT/5))
     start_button = pygame.Rect(int(WIDTH/2 - 92), int(2*HEIGHT/5 + 140), 190, 50)
@@ -101,7 +108,7 @@ def show_start_screen(screen):
                 quit()
 
 
-def show_pause_screen(screen):
+def show_pause_screen():
     pause = True
     reset = False
     play_again_button = pygame.Rect(int(WIDTH/2 - 85), int(2*HEIGHT/5 + 140), 180, 50)
