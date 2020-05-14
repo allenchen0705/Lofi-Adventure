@@ -1,51 +1,12 @@
 import pygame
+from setting import *
 
 
-WIDTH = 800
-HEIGHT = 585
-FPS = 60
-POWERUP_TIME = 5000
-clock = pygame.time.Clock()
-font_name = pygame.font.match_font("Arial")
-
-
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-
-
-# define color
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-LILAC = (229, 204, 255)
-MINT = (204, 255, 229)
-WHITE = (255, 255, 255)
-ORANGE = (255, 178, 102)
-BACKGROUND_COLOUR = ORANGE
-
-
-def draw_text(surf, text, size, x, y):
-    font = pygame.font.Font(font_name, size)
-    text_surface = font.render(text, True, WHITE)
-    text_rect = text_surface.get_rect()
-    text_rect.midtop = (x, y)
-    surf.blit(text_surface, text_rect)
-
-
-def button_hovered(rectangle, hov_colour):
-    mouse_pos = pygame.mouse.get_pos()
-    hovered = False
-    if rectangle.x <= mouse_pos[0] <= rectangle.x + rectangle.width \
-            and rectangle.y <= mouse_pos[1] <= rectangle.y + rectangle.height:
-        pygame.draw.rect(screen, hov_colour, rectangle)
-        hovered = True
-
-    return hovered
-
-
-def show_go_screen():
+def show_go_screen(score):
     screen.fill(BLACK)
     play_again_button = pygame.Rect(int(WIDTH/2 - 85), int(2*HEIGHT/5 + 140), 180, 50)
     exit_button = pygame.Rect(int(WIDTH/2 - 50), int(2*HEIGHT/3 + 70), 100, 50)
+    draw_text(screen, 'SCORE: ' + str(int(score)), 40, int(WIDTH/2), int(1*HEIGHT/4))
     draw_text(screen, 'GAME OVER', 64, int(WIDTH/2), int(2*HEIGHT/5))
     draw_text(screen, 'PLAY AGAIN', 28, int(WIDTH/2), int(2*HEIGHT/3))
     draw_text(screen, 'EXIT', 28, int(WIDTH/2), int(2*HEIGHT/3 + 70))

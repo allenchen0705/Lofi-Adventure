@@ -1,31 +1,7 @@
 import pygame
 import random
-from os import path
+from setting import *
 
-WIDTH = 800
-HEIGHT = 585
-FPS = 60
-POWERUP_TIME = 5000
-
-# define color
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-LILAC = (229, 204, 255)
-MINT = (204, 255, 229)
-WHITE = (255, 255, 255)
-ORANGE = (255, 178, 102)
-BACKGROUND_COLOUR = ORANGE
-
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-clock = pygame.time.Clock()
-
-#need to update this speed from the main loop, maybe changing the game to a class would help
-speed = 3
-
-game_folder = path.dirname(__file__)
-
-shuriken_img = pygame.image.load(path.join(game_folder, 'ninjastar.jpg')).convert()
 
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
@@ -64,4 +40,3 @@ class Mob(pygame.sprite.Sprite):
                 self.rect.right > WIDTH + 75:
             self.rect.x = random.randrange(0, WIDTH - self.rect.width)
             self.rect.y = random.randrange(-150, -100)
-            self.speedy = speed + 3

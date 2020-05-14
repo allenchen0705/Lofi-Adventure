@@ -1,52 +1,23 @@
 import pygame
-import random
-from os import path
 from mob import Mob
-from player import Player, Pow
-from screens import show_go_screen, show_start_screen, show_pause_screen
-
-WIDTH = 800
-HEIGHT = 585
-FPS = 60
-POWERUP_TIME = 5000
-
-# define color
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-LILAC = (229, 204, 255)
-MINT = (204, 255, 229)
-WHITE = (255, 255, 255)
-ORANGE = (255, 178, 102)
-BACKGROUND_COLOUR = ORANGE
-
-
-# set up assets folders
-game_folder = path.dirname(__file__)
+from player import *
+from screens import *
+from setting import *
 
 # initialize pygame and create window
 pygame.init()
 # sound
 pygame.mixer.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Eludo")
-clock = pygame.time.Clock()
 
 
 # helper functions
-font_name = pygame.font.match_font("Arial")
-def draw_text(surf, text, size, x, y):
-    font = pygame.font.Font(font_name, size)
-    text_surface = font.render(text, True, WHITE)
-    text_rect = text_surface.get_rect()
-    text_rect.midtop = (x, y)
-    surf.blit(text_surface, text_rect)
-
 def new_mob(speed: int):
     m = Mob()
     all_sprites.add(m)
     mobs.add(m)
     m.speedy += speed
+
 
 def new_powerup():
     p = Pow()
@@ -54,38 +25,10 @@ def new_powerup():
     powerups.add(p)
 
 
-def draw_lives(surf, x, y, lives, img):
-    for i in range(lives):
-        img_rect = img.get_rect()
-        img_rect.x = x + 30 * i
-        img_rect.y = y
-        surf.blit(img, img_rect)
-
-
-def button_hovered(rectangle, hov_colour):
-    mouse_pos = pygame.mouse.get_pos()
-    hovered = False
-    if rectangle.x <= mouse_pos[0] <= rectangle.x + rectangle.width \
-            and rectangle.y <= mouse_pos[1] <= rectangle.y + rectangle.height:
-        pygame.draw.rect(screen, hov_colour, rectangle)
-        hovered = True
-
-    return hovered
-
 # debuffs
 # slow speed
 # become fat
 # poison/bleeding effect
-
-
-# Load all game graphics
-lives_img = pygame.image.load(path.join(game_folder, 'heart.jpg')).convert()
-lives_mini_img = pygame.transform.scale(lives_img, (25, 25))
-lives_mini_img.set_colorkey(WHITE)
-background = pygame.image.load(path.join(game_folder, 'background.jpg')).convert()
-background_rect = background.get_rect()
-
-
 
 # game loop
 start = True
@@ -109,7 +52,7 @@ while running:
             new_powerup()
         score = 0
     if game_over:
-        show_go_screen()
+        show_go_screen(score)
         game_over = False
         speed = 3
         all_sprites = pygame.sprite.Group()
@@ -156,6 +99,8 @@ while running:
         if now - last_update > 6000:
             speed += 1
             new_mob(speed)
+            for mob in mobs:
+                mob.speedy += 1
             last_update = now
 
         # check to see if a mob hit the player
@@ -198,13 +143,10 @@ while running:
                 player.time_invincible()
                 new_powerup()
 
-
         if player.lives == 0: # and not death_explosion.alive():
             game_over = True
 
         score += 0.2
-
-
 
     pygame.display.flip()
 
