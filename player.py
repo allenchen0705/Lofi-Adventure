@@ -1,7 +1,7 @@
 import pygame
 import random
 from os import path
-from setting import *
+from settings import *
 
 
 class Player(pygame.sprite.Sprite):
@@ -159,11 +159,12 @@ class Pow(pygame.sprite.Sprite):
         self.radius = int(self.rect.width / 2)
         self.rect.x = random.randrange(0, WIDTH - self.rect.width)
         self.rect.y = random.randrange(-150, -100)
-        self.speedy = random.randrange(3, 6)
+        self.speedy = 3
 
     def update(self):
         self.rect.y += self.speedy
-        if self.rect.top > HEIGHT + 20 or self.rect.left < -75 or \
+        wait_distance = random.randint(1500, 4000)
+        if self.rect.top > HEIGHT + wait_distance or self.rect.left < -75 or \
                 self.rect.right > WIDTH + 75:
             self.type = random.choice(['shield', 'shield', 'shield', 'shield', 'shield',
                                        'extra life', 'extra life',
@@ -178,4 +179,3 @@ class Pow(pygame.sprite.Sprite):
             self.radius = int(self.rect.width / 2)
             self.rect.x = random.randrange(0, WIDTH - self.rect.width)
             self.rect.y = random.randrange(-150, -100)
-            self.speedy = random.randrange(1, 8)

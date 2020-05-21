@@ -2,7 +2,8 @@ import pygame
 from mob import Mob
 from player import *
 from screens import *
-from setting import *
+from settings import *
+import random
 
 # initialize pygame and create window
 pygame.init()
@@ -22,7 +23,8 @@ class Game:
 
     def new(self):
         self.start = False
-        self.speed = 3
+        self.mob_speed = 3
+        self.pow_speed = 3
         self.score = 0
         self.player = Player()
         self.all_sprites = pygame.sprite.Group()
@@ -30,27 +32,30 @@ class Game:
         self.mobs = pygame.sprite.Group()
         self.powerups = pygame.sprite.Group()
         for i in range(5):
-            self.new_mob(self.speed)
+            self.new_mob(self.mob_speed)
         for j in range(1):
-            self.new_powerup()
+            self.new_powerup(self.pow_speed)
 
     def update(self):
         self.all_sprites.update()
-        self.player.unfreeze(self.mobs, self.speed + 3)
+        self.player.unfreeze(self.mobs, self.mob_speed + 3)
 
-        # increase the number of shurikens with time
+        # increase the number of mobs and powerups with time
         now = pygame.time.get_ticks()
         if now - self.last_update > 10000:
-            self.speed += 0.3
-            self.new_mob(self.speed)
+            self.mob_speed += 0.3
+            self.pow_speed += 0.4
+            self.new_mob(self.mob_speed)
             for mob in self.mobs:
                 mob.speedy += 0.3
+            for pow in self.powerups:
+                pow.speedy += 0.4
             self.last_update = now
 
         # check to see if a mob hit the player
         mob_hits = pygame.sprite.spritecollide(self.player, self.mobs, True, pygame.sprite.collide_circle)
         for hit in mob_hits:
-            self.new_mob(self.speed)
+            self.new_mob(self.mob_speed)
             if not self.player.shield and not self.player.invincible:
                 # self.player.hide()
                 self.player.lives -= 1
@@ -64,31 +69,31 @@ class Game:
                 self.player.lives += 1
                 if self.player.lives >= 3:
                     self.player.lives = 3
-                self.new_powerup()
+                self.new_powerup(self.pow_speed)
             if hit.type == 'speed boost':
                 self.player.speed_boost()
                 if self.player.speed >= 11:
                     self.player.speed = 11
-                self.new_powerup()
+                self.new_powerup(self.pow_speed)
             if hit.type == 'shield' and not self.player.shield:
                 self.player.shield = True
-                self.new_powerup()
+                self.new_powerup(self.pow_speed)
             if hit.type == 'time freeze':
                 for mob in self.mobs:
                     mob.speedy = 1
                     mob.rot_speed = 8
-                self.new_powerup()
+                self.new_powerup(self.pow_speed)
             if hit.type == 'slow' and not self.player.invincible:
                 self.player.speed_slow_down()
                 if self.player.speed < 2:
                     self.player.speed = 2
-                self.new_powerup()
+                self.new_powerup(self.pow_speed)
             if hit.type == 'invincible':
                 self.player.time_invincible()
-                self.new_powerup()
+                self.new_powerup(self.pow_speed)
             if hit.type == 'big':
                 self.player.big_debuff()
-                self.new_powerup()
+                self.new_powerup(self.pow_speed)
 
         if self.player.lives == 0:
             self.game_over = True
@@ -99,10 +104,11 @@ class Game:
         self.mobs.add(m)
         m.speedy += speed
 
-    def new_powerup(self):
+    def new_powerup(self, speed):
         p = Pow()
         self.all_sprites.add(p)
         self.powerups.add(p)
+        p.speedy += speed
 
     def draw(self):
         screen.blit(background, background_rect)
