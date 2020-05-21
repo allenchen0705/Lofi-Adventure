@@ -31,7 +31,7 @@ class Game:
         self.powerups = pygame.sprite.Group()
         for i in range(5):
             self.new_mob(self.speed)
-        for j in range(5):
+        for j in range(1):
             self.new_powerup()
 
     def update(self):
