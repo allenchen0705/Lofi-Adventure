@@ -1,5 +1,5 @@
 import pygame
-from setting import *
+from settings import *
 
 
 def show_go_screen(score):
@@ -43,23 +43,52 @@ def show_go_screen(score):
 
 def show_start_screen():
     screen.fill(BLACK)
-    draw_text(screen, 'WELCOME', 64, int(WIDTH/2), int(2*HEIGHT/5))
-    start_button = pygame.Rect(int(WIDTH/2 - 92), int(2*HEIGHT/5 + 140), 190, 50)
-    draw_text(screen, 'START GAME', 28, int(WIDTH/2), int(2*HEIGHT/3))
+    draw_text(screen, 'WELCOME', 64, int(WIDTH/2), int(HEIGHT/7))
+    draw_text(screen, 'CHOOSE YOUR CHARACTER', 36, int(WIDTH/2), int(HEIGHT/5 + 40))
+    start_button = pygame.Rect(int(WIDTH/2 - 92), int(HEIGHT - 150), 190, 50)
+    sarah_button = pygame.Rect(int(WIDTH/2 - 150), int(2*HEIGHT/3 - 125), 100, 100)
+    allen_button = pygame.Rect(int(WIDTH/2 + 50), int(2*HEIGHT/3 - 125), 100, 100)
+    # draw_text(screen, 'START GAME', 28, int(WIDTH/2), int(HEIGHT - 150))
 
+    choice = 0
+    sarah_selected = False
+    allen_selected = False
     waiting = True
     while waiting:
 
         clock.tick(FPS)
 
-        click = pygame.mouse.get_pressed()
-        pygame.draw.rect(screen, GREEN, start_button)
-        draw_text(screen, 'START GAME', 28, int(WIDTH/2), int(2*HEIGHT/3))
-        if button_hovered(start_button, (153, 255, 51)):
-            draw_text(screen, 'START GAME', 28, int(WIDTH/2), int(2*HEIGHT/3))
+        click_character = pygame.mouse.get_pressed()
+        pygame.draw.rect(screen, RED, sarah_button)
+        draw_text(screen, 'SARAH', 28, int(WIDTH/2 - 100), int(2*HEIGHT/3 - 125))
+        pygame.draw.rect(screen, ORANGE, allen_button)
+        draw_text(screen, 'ALLEN', 28, int(WIDTH/2 + 100), int(2*HEIGHT/3 - 125))
+        if button_hovered(sarah_button, (255, 153, 153)):
+            draw_text(screen, 'SARAH', 28, int(WIDTH/2 - 100), int(2*HEIGHT/3 - 125))
 
-            if click[0] == 1:
-                waiting = False
+            if click_character[0] == 1:
+                sarah_selected = True
+                allen_selected = False
+                choice = 1
+
+        elif button_hovered(allen_button, (255, 220, 0)):
+            draw_text(screen, 'ALLEN', 28, int(WIDTH/2 + 100), int(2*HEIGHT/3 - 125))
+
+            if click_character[0] == 1:
+                allen_selected = True
+                sarah_selected = False
+                choice = 2
+
+        if sarah_selected or allen_selected:
+            click_start = pygame.mouse.get_pressed()
+            pygame.draw.rect(screen, GREEN, start_button)
+            draw_text(screen, 'START GAME', 28, int(WIDTH/2), int(HEIGHT - 150))
+            if button_hovered(start_button, (153, 255, 51)):
+                draw_text(screen, 'START GAME', 28, int(WIDTH/2), int(HEIGHT - 150))
+
+                if click_start[0] == 1:
+                    waiting = False
+                    return choice
 
         pygame.display.flip()
 

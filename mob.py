@@ -1,16 +1,16 @@
 import pygame
 import random
-from setting import *
+from settings import *
 
 
 class Mob(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         self.image_orig = pygame.transform.scale(shuriken_img, (80, 80))
-        self.image_orig.set_colorkey(WHITE)
+        self.image_orig.set_colorkey(BLACK)
         self.image = self.image_orig.copy()
         self.rect = self.image.get_rect()
-        self.radius = int(self.rect.width * .35 / 2)
+        self.radius = int(self.rect.width * .28)
         # pygame.draw.circle(self.image, RED, self.rect.center, self.radius)
         self.rect.x = random.randrange(0, WIDTH - self.rect.width)
         self.rect.y = random.randrange(-150, -100)

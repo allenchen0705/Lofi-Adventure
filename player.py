@@ -6,9 +6,13 @@ from settings import *
 
 class Player(pygame.sprite.Sprite):
     # sprite of the player
-    def __init__(self):
+    def __init__(self, choice):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.scale(player_img, (67, 50))
+        self.choice = choice
+        if choice == 1:
+            self.image = pygame.transform.scale(player1_img, (67, 50))
+        else:
+            self.image = pygame.transform.scale(player2_img, (67, 50))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.radius = 30
@@ -52,6 +56,7 @@ class Player(pygame.sprite.Sprite):
         # unhide if hidden
         if self.hidden and pygame.time.get_ticks() - self.hide_timer > 1000:
             self.hidden = False
+            self.invincible = False
             self.rect.centerx = WIDTH / 2
             self.rect.bottom = HEIGHT - 25
 
@@ -84,14 +89,14 @@ class Player(pygame.sprite.Sprite):
     def reset(self):
         self.speedx = 0
         self.speed = 5
-        self.image = pygame.transform.scale(player_img, (67, 50))
+        if self.choice == 1:
+            self.image = pygame.transform.scale(player1_img, (67, 50))
+        else:
+            self.image = pygame.transform.scale(player2_img, (67, 50))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.radius = 30
-        self.hidden = True
-        self.hide_timer = pygame.time.get_ticks()
-        self.rect.center = (WIDTH / 2, HEIGHT + 200)
-        self.power_time = pygame.time.get_ticks()
+        self.hide()
         self.freeze_time = pygame.time.get_ticks()
         self.slow_time = pygame.time.get_ticks()
         self.big_time = pygame.time.get_ticks()
@@ -107,11 +112,12 @@ class Player(pygame.sprite.Sprite):
                 mob.rot_speed = random.randrange(80, 120)
             self.freeze_time = pygame.time.get_ticks()
 
-    # def hide(self):
-    #     # hide the player temporarily
-    #     self.hidden = True
-    #     self.hide_timer = pygame.time.get_ticks()
-    #     self.rect.center = (WIDTH / 2, HEIGHT + 200)
+    def hide(self):
+        # hide the player temporarily
+        self.hidden = True
+        self.hide_timer = pygame.time.get_ticks()
+        self.rect.center = (WIDTH / 2, HEIGHT + 200)
+        self.invincible = True
 
     def speed_boost(self):
         self.speed += 3
@@ -129,7 +135,10 @@ class Player(pygame.sprite.Sprite):
         self.big = True
         self.temp_centerx = self.rect.centerx
         self.temp_bottom = self.rect.bottom
-        self.image = pygame.transform.scale(player_img, (101, 75))
+        if self.choice == 1:
+            self.image = pygame.transform.scale(player1_img, (101, 75))
+        else:
+            self.image = pygame.transform.scale(player2_img, (101, 75))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         self.radius = 45

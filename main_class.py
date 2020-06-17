@@ -11,7 +11,6 @@ pygame.init()
 pygame.mixer.init()
 pygame.display.set_caption("Eludo")
 
-
 # turning the game loop into a class
 class Game:
     def __init__(self):
@@ -26,7 +25,7 @@ class Game:
         self.mob_speed = 3
         self.pow_speed = 3
         self.score = 0
-        self.player = Player()
+        self.player = Player(choice)
         self.all_sprites = pygame.sprite.Group()
         self.all_sprites.add(self.player)
         self.mobs = pygame.sprite.Group()
@@ -124,7 +123,7 @@ class Game:
 g = Game()
 while g.running:
     if g.start:
-        show_start_screen()
+        choice = show_start_screen()
         g.start = False
         g.new()
 
